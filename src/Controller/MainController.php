@@ -13,21 +13,12 @@ final class MainController extends AbstractController
     public function index(Request $request): Response
     {
         $name = $request->query->getString('name', 'World');
-        $html = sprintf('
-        <html>
-            <body>
-                <div>
-                    <p>Hello <strong>%s</strong></p>
-                </div>
-            </body>
-        </html>
-        ',$name);
-        return new Response($html);
+        return $this->render('main/index.html.twig', ['name' => $name]);
     }
 
     #[Route('/contact', name: 'app_main_contact', methods: [Request::METHOD_GET])]
     public function contact(): Response
     {
-        return new Response('Contact : contact@contact.com');
+        return $this->render('main/contact.html.twig');
     }
 }
