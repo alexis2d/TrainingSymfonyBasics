@@ -6,6 +6,7 @@ use App\Repository\ConferenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ConferenceRepository::class)]
@@ -17,33 +18,53 @@ class Conference
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 10
+    )]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 30
+    )]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
     private ?bool $accessible = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 20
+    )]
     private ?string $prerequisites = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
+    #[Assert\GreaterThanOrEqual('now')]
     private ?\DateTimeImmutable $startAt = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
+    #[Assert\GreaterThanOrEqual(propertyPath: 'startAt')]
     private ?\DateTimeImmutable $endAt = null;
 
     /**
      * @var Collection<int, Organization>
      */
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'conferences')]
+    #[Assert\NotBlank]
+    #[Assert\Valid]
     private Collection $organizations;
 
     /**
      * @var Collection<int, Volunteering>
      */
     #[ORM\OneToMany(targetEntity: Volunteering::class, mappedBy: 'conference')]
+    #[Assert\NotBlank]
     private Collection $volunteerings;
 
     public function __construct()
