@@ -15,13 +15,18 @@ use Symfony\Component\Routing\Attribute\Route;
 class ConferenceController extends AbstractController
 {
     #[Route('/new', name: 'app_conference_new', methods: ['GET', 'POST'])]
-    public function newConference(EntityManagerInterface $manager): Response
+    public function newConference(Request $request, EntityManagerInterface $manager): Response
     {
         $conference = new Conference();
         $form = $this->createForm(ConferenceType::class, $conference);
 
-        //$manager->persist($conference);
-        //$manager->flush();
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $manager->persist($conference);
+            $manager->flush();
+
+            return $this->redirectToRoute('app_conference_show', ['id' => $conference->getId()]);
+        }
 
         return $this->render('conference/new.html.twig', [
             'form' => $form,
