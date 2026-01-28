@@ -17,19 +17,19 @@ class ConferenceRepository extends ServiceEntityRepository
         parent::__construct($registry, Conference::class);
     }
 
-    public function findByDates(?\DateTimeImmutable $startAt, ?\DateTimeImmutable $endAt) : Collection
+    public function findByDates(?\DateTimeImmutable $startAt, ?\DateTimeImmutable $endAt) : mixed
     {
         if ($startAt === null && $endAt === null) {
             throw new \InvalidArgumentException('Start or end dates must be set');
         }
        $queryBuilder = $this->createQueryBuilder('c')
-            ->select('c.*');
+            ->select('c');
        if ($startAt instanceof \DateTimeImmutable) {
-           $queryBuilder->andWhere('c.start_at >= :start')
+           $queryBuilder->andWhere('c.startAt >= :start')
                ->setParameter('start', $startAt);
        }
        if ($endAt instanceof \DateTimeImmutable) {
-           $queryBuilder->andWhere('c.end_at <= :end')
+           $queryBuilder->andWhere('c.endAt <= :end')
                ->setParameter('end', $endAt);
        }
 

@@ -6,6 +6,7 @@ use App\Entity\Conference;
 use App\Repository\ConferenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -29,9 +30,22 @@ class ConferenceController extends AbstractController
     }
 
     #[Route('/', name: 'app_conference_list')]
-    public function list(ConferenceRepository $conferenceRepository): Response
+    public function list(ConferenceRepository $conferenceRepository, Request $request): Response
     {
-        $conferences = $conferenceRepository->findAll();
+        $startAtString = $request->query->getString('start');
+        $startAt = $startAtString ? new \DateTimeImmutable($startAtString) : null;
+        $endAtString = $request->query->getString('end');
+        $endAt = $endAtString ? new \DateTimeImmutable($endAtString) : null;
+        if ($startAt === null && $endAt === null) {
+            $conferences = $conferenceRepository->findAll();
+        } else {
+            $conferences = $conferenceRepository->findByDates($startAt, $endAt);
+        }
+
+        if (is_array($conferences) === false) {
+            $conferences = [];
+        }
+
         return $this->render('conference/list.html.twig', ['conferences' => $conferences]);
     }
 
@@ -39,15 +53,6 @@ class ConferenceController extends AbstractController
     public function show(Conference $conference): Response
     {
         return $this->render('conference/show.html.twig', ['conference' => $conference]);
-    }
-
-    #[Route('/{start}/{end}', name: 'app_conference_list_by_dates')]
-    public function listByDates(string $start, string $end, ConferenceRepository $conferenceRepository): Response
-    {
-        $startAt = $start ? new \DateTimeImmutable($start) : null;
-        $endAt = $end ? new \DateTimeImmutable($end) : null;
-        $conferenceRepository->findByDates($startAt, $endAt)->toArray();
-        return new Response('Test');
     }
 
 }
